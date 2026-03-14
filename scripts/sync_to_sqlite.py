@@ -118,13 +118,17 @@ def sync_addons(conn, api):
     conn.commit()
     print("Metadata sync complete.")
 
-    # Second pass: fetch descriptions (slow but acceptable in CI)
+    # Second pass: fetch descriptions for addons that don't have one yet
     print("Fetching addon descriptions (this will take a while)...")
-    addon_ids = [a.get('UID') for a in addons if a.get('UID')]
+    cursor.execute("SELECT id FROM addons WHERE description IS NULL OR description = ''")
+    missing_ids = [row[0] for row in cursor.fetchall()]
+    print(f"  {len(missing_ids)} addons need descriptions ({len(addons) - len(missing_ids)} already have them)")
+
     fetched = 0
     errors = 0
+    consecutive_errors = 0
 
-    for addon_id in addon_ids:
+    for addon_id in missing_ids:
         try:
             details = api.fetch_addon_details(addon_id)
             description = details.get('UIDescription', '') if details else ''
@@ -133,15 +137,21 @@ def sync_addons(conn, api):
                 (description, addon_id)
             )
             fetched += 1
+            consecutive_errors = 0
             if fetched % 100 == 0:
                 conn.commit()
-                print(f"  Fetched {fetched}/{len(addon_ids)} descriptions...")
-            # Rate limit: small delay to avoid hammering MMOUI
-            time.sleep(0.1)
+                print(f"  Fetched {fetched}/{len(missing_ids)} descriptions...")
+            # Rate limit: 0.5s between requests to avoid hammering MMOUI
+            time.sleep(0.5)
         except Exception as e:
             errors += 1
-            if errors <= 5:
+            consecutive_errors += 1
+            if errors <= 10:
                 print(f"  Warning: failed to fetch description for {addon_id}: {e}")
+            # If we get 20 consecutive errors, MMOUI is probably blocking us
+            if consecutive_errors >= 20:
+                print(f"  Too many consecutive errors ({consecutive_errors}). Stopping description fetch.")
+                break
 
     conn.commit()
     print(f"Description sync complete. Fetched: {fetched}, Errors: {errors}")
@@ -161,11 +171,7 @@ def update_metadata(conn):
 def main():
     output_path = sys.argv[1] if len(sys.argv) > 1 else DB_PATH
 
-    # Remove old DB if it exists to start fresh
-    if os.path.exists(output_path):
-        os.remove(output_path)
-
-    print(f"Creating database at {output_path}")
+    print(f"Opening database at {output_path}")
     conn = sqlite3.connect(output_path)
 
     try:
