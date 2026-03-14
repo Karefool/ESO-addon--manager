@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Compass, Package, Settings, Download, X, RefreshCw, HardDrive, Trash2 } from 'lucide-react';
+import { Search, Compass, Package, Settings, Download, X, RefreshCw, HardDrive, Trash2, ExternalLink, Heart, MessageSquare } from 'lucide-react';
 import { parseBBCode, stripBBCode } from './bbcode';
 import './index.css';
 
@@ -511,6 +511,45 @@ function App() {
                     <div className="w-10 h-6 bg-zinc-800 border border-white/5 rounded-full cursor-pointer relative shadow-inner">
                       <div className="absolute left-1 top-1 w-4 h-4 bg-zinc-400 rounded-full shadow-sm"></div>
                     </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#0c0c10] border border-white/10 rounded-2xl p-6 shadow-xl">
+                  <h3 className="text-lg font-medium text-zinc-200 mb-4">Feedback & Support</h3>
+                  <div className="space-y-3">
+                    <a
+                      href="https://github.com/Karefool/ESO-addon--manager/issues"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => { e.preventDefault(); window.open('https://github.com/Karefool/ESO-addon--manager/issues', '_blank'); }}
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg bg-zinc-900/50 border border-white/5 hover:border-blue-500/30 hover:bg-blue-500/5 transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <MessageSquare className="w-4 h-4 text-blue-400" />
+                        <div>
+                          <h4 className="text-sm font-medium text-zinc-200 group-hover:text-blue-400 transition-colors">Report a Bug or Request a Feature</h4>
+                          <p className="text-xs text-zinc-500 mt-0.5">Open an issue on GitHub</p>
+                        </div>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-blue-400 transition-colors" />
+                    </a>
+
+                    <a
+                      href="https://www.paypal.com/paypalme/my/profile"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => { e.preventDefault(); window.open('https://www.paypal.com/paypalme/my/profile', '_blank'); }}
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg bg-zinc-900/50 border border-white/5 hover:border-pink-500/30 hover:bg-pink-500/5 transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Heart className="w-4 h-4 text-pink-400" />
+                        <div>
+                          <h4 className="text-sm font-medium text-zinc-200 group-hover:text-pink-400 transition-colors">Support the Developer</h4>
+                          <p className="text-xs text-zinc-500 mt-0.5">Buy me a coffee via PayPal</p>
+                        </div>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-pink-400 transition-colors" />
+                    </a>
                   </div>
                 </div>
               </div>
