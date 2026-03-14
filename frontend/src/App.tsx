@@ -237,7 +237,25 @@ function App() {
           </div>
         </nav>
 
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-white/5 space-y-2">
+          <a
+            href="https://github.com/Karefool/ESO-addon--manager/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => { e.preventDefault(); window.open('https://github.com/Karefool/ESO-addon--manager/issues', '_blank'); }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:text-blue-400 hover:bg-blue-500/10 border border-transparent transition-all duration-200"
+          >
+            <MessageSquare className="w-4 h-4" /> Feedback
+          </a>
+          <a
+            href="https://www.paypal.com/paypalme/my/profile"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => { e.preventDefault(); window.open('https://www.paypal.com/paypalme/my/profile', '_blank'); }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-pink-400 hover:bg-pink-500/10 hover:border-pink-500/20 border border-transparent transition-all duration-200"
+          >
+            <Heart className="w-4 h-4" /> Support Us
+          </a>
           <button
             onClick={() => setView('settings')}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
