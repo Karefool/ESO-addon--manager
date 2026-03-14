@@ -1,0 +1,66 @@
+name: Sync Addon Database
+
+on:
+  schedule:
+    # Runs twice daily at 6am and 6pm UTC
+    - cron: '0 6,18 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run sync script
+        run: python scripts/sync_to_sqlite.py addons.db
+
+      - name: Get database stats
+        run: |
+          python -c "
+          import sqlite3
+          conn = sqlite3.connect('addons.db')
+          addons = conn.execute('SELECT COUNT(*) FROM addons').fetchone()[0]
+          cats = conn.execute('SELECT COUNT(*) FROM categories').fetchone()[0]
+          synced = conn.execute(\"SELECT value FROM metadata WHERE key='last_synced'\").fetchone()[0]
+          print(f'Addons: {addons}, Categories: {cats}, Synced: {synced}')
+          conn.close()
+          "
+
+      - name: Delete old release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the release
+          RELEASE=$(gh api repos/${{ github.repository }}/releases/tags/data-latest 2>/dev/null || echo "")
+          if [ -n "$RELEASE" ]; then
+            # Delete existing addons.db asset if present
+            ASSET_ID=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "addons.db") | .id' 2>/dev/null || echo "")
+            if [ -n "$ASSET_ID" ]; then
+              gh api -X DELETE repos/${{ github.repository }}/releases/assets/$ASSET_ID
+              echo "Deleted old addons.db asset"
+            fi
+          else
+            # Create the release if it doesn't exist
+            gh release create data-latest --title "Addon Database (Auto-Updated)" --notes "This release contains the automatically synced addon database. Updated twice daily." --latest=false
+            echo "Created data-latest release"
+          fi
+
+      - name: Upload new database
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload data-latest addons.db --clobber
+          echo "Uploaded new addons.db"
