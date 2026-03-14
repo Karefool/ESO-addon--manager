@@ -71,8 +71,8 @@ def get_addons(
         params = []
 
         if query:
-            where_clauses.append("(name LIKE ? OR description LIKE ? OR author_name LIKE ?)")
-            params.extend([f"%{query}%", f"%{query}%", f"%{query}%"])
+            where_clauses.append("(name LIKE ? OR author_name LIKE ?)")
+            params.extend([f"%{query}%", f"%{query}%"])
 
         if category_id:
             where_clauses.append("category_id = ?")
@@ -87,15 +87,25 @@ def get_addons(
         cursor.execute(count_query, params)
         total = cursor.fetchone()['count']
 
-        # Fetch paginated
+        # Fetch paginated - prioritize name matches when searching
         offset = (page - 1) * limit
-        sql = f"""
-            SELECT * FROM addons
-            {where_stmt}
-            ORDER BY {sort_by} {'ASC' if order == 'asc' else 'DESC'}
-            LIMIT ? OFFSET ?
-        """
-        params.extend([limit, offset])
+        if query:
+            order_clause = f"CASE WHEN name LIKE ? THEN 0 ELSE 1 END, {sort_by} {'ASC' if order == 'asc' else 'DESC'}"
+            sql = f"""
+                SELECT * FROM addons
+                {where_stmt}
+                ORDER BY {order_clause}
+                LIMIT ? OFFSET ?
+            """
+            params.extend([f"%{query}%", limit, offset])
+        else:
+            sql = f"""
+                SELECT * FROM addons
+                {where_stmt}
+                ORDER BY {sort_by} {'ASC' if order == 'asc' else 'DESC'}
+                LIMIT ? OFFSET ?
+            """
+            params.extend([limit, offset])
 
         cursor.execute(sql, params)
         raw_addons = cursor.fetchall()

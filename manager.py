@@ -160,7 +160,8 @@ class AddonManager:
                 self._resolve_dependencies(manifest_path, downloaded_set)
 
     def _resolve_dependencies(self, manifest_path: Path, downloaded_set: Set[str]):
-        """Parse DependsOn AND OptionalDependsOn, install missing dependencies."""
+        """Parse required dependencies (DependsOn, PCDependsOn), install missing ones.
+        OptionalDependsOn is intentionally skipped to avoid installing unwanted addons."""
         try:
             with open(manifest_path, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -171,7 +172,10 @@ class AddonManager:
         depends_on = []
         for line in content.splitlines():
             line = line.strip()
-            if line.startswith("## DependsOn:") or line.startswith("## OptionalDependsOn:"):
+            # Only install required dependencies, not optional ones
+            if (line.startswith("## DependsOn:") or
+                    line.startswith("## PCDependsOn:") or
+                    line.startswith("## Dependencies:")):
                 deps_str = line.split(":", 1)[1].strip()
                 deps = [d.strip() for d in deps_str.split()]
                 for dep in deps:
