@@ -149,4 +149,4 @@ if __name__ == '__main__':
         background_color="#09090b"
     )
 
-    webview.start()
+    webview.start(gui='edgechromium')

@@ -8,8 +8,6 @@ a = Analysis(
     datas=[('frontend/dist', 'frontend/dist')],
     hiddenimports=[
         'webview',
-        'clr_loader',
-        'pythonnet',
         'bottle',
         'uvicorn',
         'uvicorn.logging',
