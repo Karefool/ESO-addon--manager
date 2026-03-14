@@ -1,6 +1,11 @@
 name: Sync Addon Database
 
 on:
+  push:
+    branches: [master]
+    paths:
+      - 'scripts/sync_to_sqlite.py'
+      - '.github/workflows/sync-addons.yml'
   schedule:
     # Runs twice daily at 6am and 6pm UTC
     - cron: '0 6,18 * * *'
