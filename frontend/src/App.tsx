@@ -4,7 +4,7 @@ import { Search, Compass, Package, Settings, Download, X, RefreshCw, HardDrive, 
 import { parseBBCode, stripBBCode } from './bbcode';
 import './index.css';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = '/api';
 
 interface Category {
   id: string;

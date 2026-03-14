@@ -109,18 +109,34 @@ def check_app_update(app):
         print(f"Update check failed (non-blocking): {e}")
 
 
+def find_free_port():
+    """Find a free port to avoid conflicts."""
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('127.0.0.1', 0))
+        return s.getsockname()[1]
+
+
+# Global port so both server and window use the same one
+APP_PORT = None
+
+
 def start_server():
     from backend.app import app
 
     # Check for app updates (non-blocking, stores on app.state)
     check_app_update(app)
 
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="error")
+    uvicorn.run(app, host="127.0.0.1", port=APP_PORT, log_level="error")
 
 
 if __name__ == '__main__':
     # Ensure app data directory exists
     ensure_appdata_dir()
+
+    # Find a free port
+    APP_PORT = find_free_port()
+    print(f"Starting on port {APP_PORT}")
 
     # Download/update addon database if needed
     if db_is_stale():
@@ -142,7 +158,7 @@ if __name__ == '__main__':
     # Launch the native webview window
     webview.create_window(
         title="ESO Power Lite",
-        url="http://127.0.0.1:8000",
+        url=f"http://127.0.0.1:{APP_PORT}",
         width=1200,
         height=800,
         min_size=(1024, 768),
