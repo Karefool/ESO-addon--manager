@@ -38,6 +38,7 @@ ESO Power Lite scans your local `Documents\Elder Scrolls Online\live\AddOns` fol
 
 - **Found a bug or have a feature request?** [Open an issue](https://github.com/Karefool/ESO-addon--manager/issues)
 - **Want to support development?** [Buy me a coffee via PayPal](https://www.paypal.com/paypalme/my/profile)
+- **Discord Server** https://discord.gg/wMWJ4rHbZD
 
 ## Tech Stack
 
